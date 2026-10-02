@@ -1,0 +1,7 @@
+isovault
+isovault.exe
+notes
+cruft
+*.core
+*.log
+*postactivate
