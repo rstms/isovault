@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+box=isovault
+
+ssh -t $box doas /root/bin/stage-scripts
+scp $box:bin/* root/bin

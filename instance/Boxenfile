@@ -1,0 +1,28 @@
+HOST VMWare:ram=4G:disk=32G:context=beaker:usb=3,hid,ccid,device=1050,device=2c97
+NETBOOT https://zippy.rstms.net:4443:os=devuan:version=excalibur
+KERNEL_PARAMS DEBIAN_FRONTEND=text
+#PROXY http://debcache.rstms.net:3142
+USERNAME ${system_user}
+SSH_PUBKEY @~/.ssh/id_ed25519.pub
+USER_PASSWD @~/.secrets/boxen/system_user_password
+ROOT_PASSWD @~/.secrets/boxen/${image_name}.root
+
+PACKAGES man-db manpages net-tools figlet bash curl vim 
+# aptitude pipx curl git vim 
+
+RUN echo ${image_name}.${image_id} >/root/boxen.${image_name}.${image_id}
+RUN { hostname -s | figlet -fslant; uname -a; } >/etc/motd && chmod 0644 /etc/motd
+RUN rm -f /etc/update-motd.d/10-uname
+
+COPY --chown=root:root etc .
+COPY --chown=root:root root .
+RUN chown -R root:root /root
+RUN chmod 0700 /root/bin/*
+RUN find /root -type d -exec chmod 0700 \{\} \;
+
+COPY dotfiles/ /home/${system_user}
+RUN mkdir -p /home/${system_user}/.local/bin
+RUN chown -R ${system_user}:${system_user} /home/${system_user}
+RUN find /home/${system_user} -type d -exec chmod 0700 \{\} \;
+RUN echo "1920x1080" >/root/.resolution
+#RUN /root/bin/bootstrap && echo -e "\nbootstrap complete" || echo -e "\nbootstrap failed"

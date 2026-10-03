@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+box=${1:-$(basename $(pwd))}
+vmx sendkeys $box "$USER\\n"
+read -sp "Perform yubikey 'long-press':" password
+tr '[a-zA-Z0-9]' '*' <<<$password
+vmx sendkeys $box - <<<$password

@@ -1,0 +1,130 @@
+#!/bin/bash
+
+set -ue
+
+echo "$(basename $0)" "$@"
+
+lightdm_log=/var/log/lightdm/lightdm.log
+
+export user=$(awk -F: '/^[^:]*:x:1000:1000:.*/{print $1}' /etc/passwd)
+export session_start_timeout=300
+export PATH=/root/bin:$PATH
+export tempdir=$(mktemp -d)
+
+failed_command=
+no_reset_session=
+
+
+fail() {
+    trap - DEBUG
+    echo >&2 $0: "$@"
+    exit 1
+}
+
+modify_service() {
+    local action=$1
+    local service=$2
+    if [ -e /etc/devuan_version ]; then
+	case $action in 
+	    start|stop|restart) service $service $action;;
+	    enable|disable) update-rc.d $service $action;;
+	    *) no_reset_session=1; fail "unexpected service action: $action";;
+	esac
+    else
+	systemctl $action $service
+    fi
+}
+
+tail_lightdm_log() {
+    if [ -f /etc/devuan_version ]; then
+	tail -F /var/log/syslog $lightdm_log
+    else
+	journalctl -f
+    fi
+}
+
+await_session_start() {
+    local mode=${1:-login}
+    local expired=$(expr $(date '+%s') + $session_start_timeout)
+    case $mode in 
+        auto) set_autologin $user; echo -n "Awaiting autologin session";;
+        login) set_autologin; echo -n "Awaiting login prompt";;
+        *) no_reset_session=1; fail "await_session_start: unexpected mode: $mode";;
+    esac
+    modify_service restart lightdm
+
+    (tail_lightdm_log &) | while read line; do
+	echo -n '.'
+	case $mode in
+	    auto)
+		if echo "$line" | grep -q 'cinnamon-killer-daemon.*Bound Cinnamon restart.*'; then
+		  echo "session active"
+		  break
+		fi
+		#if echo "$line" | grep -q 'Activating VT [0-9]'; then
+		#  echo "session active"
+		#  break
+		#fi
+		;;
+	    login)
+		if echo "$line" | grep -q 'lightdm\[[0-9][0-9]*\].* session opened for user lightdm'; then
+		  echo "prompt detected"
+		  break
+		fi
+		if echo "$line" | grep -q 'slick-greeter-enable-tap-to-click'; then
+		    echo "prompt detected"
+		    break
+		fi
+		;;
+	esac
+        if [ "$(date '+%s')" -gt "$expired" ]; then
+	    no_reset_session=1
+	    fail "timed out awaiting session start"
+	fi
+    done
+}
+
+cleanup() {
+    if [ -n "$current_command" ]; then
+	echo >&2 "failed: $current_command"
+    fi
+    if [ -d "$tempdir" ]; then
+	echo "removing tempdir $tempdir"
+	rm -rf $tempdir
+    fi
+    if [ -z "$no_reset_session" ]; then
+	await_session_start login
+    fi
+}
+#trap cleanup EXIT
+
+debug() {
+    current_command="${0}:${BASH_LINENO[0]}: $BASH_COMMAND"
+    echo 
+    echo "command: $BASH_COMMAND"
+}
+#trap debug DEBUG
+
+set_autologin() {
+    local username=${1:-}
+    local config=/etc/lightdm/lightdm.conf
+    cp $config /root
+    if [ -n "$username" ]; then
+	echo "Setting lightdm autologin-user: $username"
+	local script="s/^[#]*autologin-user[[:space:]]*=.*/autologin-user=${username}/"
+    else
+	echo "Clearing lightdm autologin-user" 
+	local script="s/^[#]*autologin-user[[:space:]]*=.*/#autologin-user=/"
+    fi
+    sed -i.bak -e "${script}" /root/$(basename $config)
+    mv /root/$(basename $config) $config
+}
+
+command=${1:-}
+case $command in 
+    auto|autologin) await_session_start auto;;
+    *) await_session_start;;
+esac
+
+trap - DEBUG
+current_command=

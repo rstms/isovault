@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+
+import requests
+import tempfile
+import sys
+import json
+import os
+import zipfile
+
+dark_theme = True
+
+default_slugs = [
+    "ublock-origin",
+    "default-bookmark-folder",
+    "1password-x-password-manager",
+    "privacy-badger17",
+    "duckduckgo-for-firefox",
+]
+
+default_bookmarks = [
+    {"Title": "Yubico", "URL": "https://yubico.com", "Placement": "toolbar"},
+    {"Title": "Ledger", "URL": "https://ledger.com", "Placement": "toolbar"},
+]
+
+default_policies = {
+    "policies": {
+        "DisableFirefoxAccounts": True,
+        "DisableFirefoxStudies": True,
+        "DisableFeedbackCommands": True,
+        "DisableMasterPasswordCreation": True,
+        "DisableRemoteImprovements": True,
+        "DisableTelemetry": True,
+        "DisplayBookmarksToolbar": "always",
+        "DNSOverHTTPS": {"Enabled": False, "Locked": True},
+        "UserMessaging": {
+            "ExtensionRecommendations": False,
+            "FeatureRecommendations": False,
+            "UrlbarInterventions": False,
+            "SkipOnboarding": True,
+            "MoreFromMozilla": False,
+            "FirefoxLabs": False,
+            "Locked": True,
+        },
+        "FirefoxHome": {
+            "Search": True,
+            "TopSites": True,
+            "SponsoredTopSites": False,
+            "Highlights": False,
+            "Stories": False,
+            "SponsoredStories": False,
+            "Snippets": False,
+            "Weather": False,
+            "Widgets": {"Enabled": False},
+            "Locked": True,
+        },
+        "FirefoxSuggest": {
+            "WebSuggestions": False,
+            "SponsoredSuggestions": False,
+            "ImproveSuggest": False,
+            "Locked": True,
+        },
+        "GenerativeAI": {
+            "Enabled": False,
+            "Chatbot": False,
+            "LinkPreviews": False,
+            "TabGroups": False,
+            "Locked": True,
+        },
+        "NoDefaultBookmarks": True,
+        "OfferToSaveLogins": False,
+        "OfferToSaveLoginsDefault": False,
+        "PasswordManagerEnabled": False,
+        "SearchSuggestEnabled": False,
+        "SkipTermsOfUse": True,
+        "ExtensionUpdate": True,
+    }
+}
+
+
+def extension_record(slug):
+
+    api_url = f"https://addons.mozilla.org/api/v5/addons/addon/{slug}/"
+
+    api_response = requests.get(api_url)
+    api_response.raise_for_status()
+
+    api_data = api_response.json()
+    current = api_data["current_version"]
+    xpi_url = current["file"]["url"]
+
+    xpi_response = requests.get(xpi_url)
+    xpi_response.raise_for_status()
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        basename = os.path.join(temp_dir, f"{slug}-{current['version']}")
+        with open(basename + ".xpi", "wb") as fp:
+            fp.write(xpi_response.content)
+        with zipfile.ZipFile(basename + ".xpi", "r") as zip_file:
+            with zip_file.open("manifest.json") as ifp:
+                with open(basename + ".manifest.json", "w") as ofp:
+                    manifest = json.loads(ifp.read().decode("utf-8"))
+
+    if "browser_specific_settings" in manifest:
+        extension_id = manifest["browser_specific_settings"]["gecko"]["id"]
+    elif "applications" in manifest:
+        extension_id = manifest["applications"]["gecko"]["id"]
+    else:
+        extension_id = manifest["name"]
+
+    return dict(
+        slug=slug,
+        id=extension_id,
+        api=api_data,
+        manifest=manifest,
+        xpi=basename + ".xpi",
+    )
+
+def init_extension_records(slugs):
+    extensions = {}
+    for slug in slugs:
+        record = extension_record(slug)
+        url = (
+            f"https://addons.mozilla.org/firefox/downloads/latest/{slug}/latest.xpi"
+        )
+        extensions[record["id"]] = dict(
+            installation_mode="force_installed", install_url=url
+        )
+    return extensions
+
+
+if __name__ == "__main__":
+
+    policies = default_policies
+    slugs = default_slugs
+
+    extensions = init_extension_records(slugs)
+    if extensions: 
+        policies["policies"]["ExtensionSettings"] = extensions
+
+    bookmarks = default_bookmarks
+    if bookmarks:
+        policies["policies"]["Bookmarks"] = bookmarks
+
+    if dark_theme:
+        policies["policies"]["DisableDefaultTheme"] = True
+
+    print(json.dumps(policies, indent=2))
+

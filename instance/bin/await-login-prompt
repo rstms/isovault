@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+box=$1
+
+connected=
+while [ -z "$connected" ]; do
+    top=$(ssh 2>/dev/null $box top -bn1 | head -4)
+    clear
+    cat <<<$top
+    sleep 1
+done
+

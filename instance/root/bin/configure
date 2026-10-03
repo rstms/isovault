@@ -1,0 +1,351 @@
+#!/bin/bash
+
+set -ue
+
+echo "$(basename $0)" "$@"
+
+menu_favorites="firefox-esr thunderbird org.xfce.mousepad ledger-live-desktop com.yubico.yubioath"
+pinned_applications="firefox-esr thunderbird org.xfce.mousepad"
+screensaver_timeout=3600
+
+export user=$(awk -F: '/^[^:]*:x:1000:1000:.*/{print $1}' /etc/passwd)
+export session_start_timeout=300
+export PATH=/root/bin:$PATH
+export tempdir=$(mktemp -d)
+failed_command=
+no_reset_session=
+
+fail() {
+    echo >&2 $0: "$@"
+    exit 1
+}
+
+modify_service() {
+    local action=$1
+    local service=$2
+    if [ -e /etc/devuan_version ]; then
+	case $action in 
+	    start|stop|restart) service $service $action;;
+	    enable|disable) update-rc.d $service $action;;
+	    *) no_reset_session=1; fail "unexpected service action: $action";;
+	esac
+    else
+	systemctl $action $service
+    fi
+}
+
+cleanup() {
+    if [ -n "$current_command" ]; then
+	echo >&2 "failed: $current_command"
+    fi
+    if [ -d "$tempdir" ]; then
+	echo "removing tempdir $tempdir"
+	rm -rf $tempdir
+    fi
+    if [ -z "$no_reset_session" ]; then
+	/root/bin/reset-lightdm
+    fi
+}
+trap cleanup EXIT
+
+debug() {
+    current_command="${0}:${BASH_LINENO[0]}: $BASH_COMMAND"
+    echo 
+    echo "command: $BASH_COMMAND"
+}
+trap debug DEBUG
+
+install_packages() {
+    DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends -y cinnamon-core
+    DEBIAN_FRONTEND=noninteractive apt install -y \
+	colord \
+	dconf-cli \
+	firefox-esr \
+	libfuse2 \
+	lightdm \
+	mousepad \
+	pcscd \
+	thunderbird \
+	xdg-dbus-proxy \
+	x11-xserver-utils \
+	xdotool \
+	yad
+    modify_service enable pcscd
+}
+
+set_xargs() {
+    local pid=$(pgrep -u $user '^cinnamon$') 
+    local address=$(tr '\0' '\n' </proc/${pid}/environ | grep '^DBUS_SESSION_BUS_ADDRESS=')
+    export session_args="DISPLAY=:0 $address"
+}
+
+
+write_autostart_script() {
+    local resolution=800x600
+    local autostart_dir=/home/$user/.config/autostart
+    local desktop=$autostart_dir/user-login.desktop
+    local script=$autostart_dir/user-login.sh
+
+    if [ -f /root/.resolution ]; then
+	resolution=$(head -1 /root/.resolution)
+    fi
+
+    su -l $user -c "${session_args} xrandr --size $resolution"
+    
+    if [ ! -f $desktop ]; then
+        mkdir -p $autostart_dir
+        cat ->$desktop <<EOF
+[Desktop Entry]
+Name=User Login
+Exec=/home/mkrueger/.config/autostart/user-login.sh
+Terminal=false
+Type=Application
+EOF
+        
+        cat ->$script <<EOF
+#!/bin/sh
+DISPLAY=:0 xrandr --size ${resolution}
+EOF
+        
+        chown -R $user:$user $autostart_dir
+        chmod -R 0700 $autostart_dir
+    fi
+    ls -l $autostart_dir
+}
+
+set_screensaver_timeout() {
+    su -l $user -c "${session_args} dconf write /org/cinnamon/desktop/session/idle-delay $screensaver_timeout"
+}
+
+install_firefox() {
+    local policies=/etc/firefox/policies/policies.json
+    local prefs=/etc/firefox-esr/firefox-esr.js
+    
+    if [ ! -f $policies ]; then
+        
+        rm -rf $(dirname $policies)
+        mkdir -p $(dirname $policies)
+        su -l $user -c python3 </root/bin/generate-firefox-policies >$policies
+        
+        # debian system-wide firefox preferences
+        if [ -f $prefs ]; then
+            temp_prefs=/root/$(basename $prefs)
+            cp $prefs $temp_prefs
+            sed -i.bak -e '/.*"extensions.activeThemeID".*/d' $temp_prefs
+            echo >>$temp_prefs 'pref("extensions.activeThemeID", "firefox-compact-dark@mozilla.org");'
+            mv $temp_prefs $prefs
+        fi
+        
+        rm -rf /home/$user/.mozilla
+        
+        echo -n "Starting firefox..."
+        su -l $user -c "${session_args} firefox" &
+        
+        count=0
+        while true; do
+            cpu=$(top -bn1 | awk '/firefox/{print $9}')
+            if [ "$cpu" = "0.0" ]; then
+    	   count=$(expr $count + 1)
+    	   echo -n '.'
+            else
+    	   count=0
+            fi
+            if [ $count -ge 10 ]; then
+    	    echo "firefox idle detected"
+    	    break
+            fi
+            pgrep -u $user >/dev/null firefox || fail "firefox process not found"
+        done
+        echo "killing firefox process"
+        pkill firefox
+    fi
+    ls -l $policies
+}
+
+install_ledger_udev_rules() {
+    local udev_rules=/etc/udev/rules.d/20-hw1.rules
+    local url=https://raw.githubusercontent.com/LedgerHQ/udev-rules/master/add_udev_rules.sh
+    local script=/root/add_udev_rules.sh
+    local script_checksum=d8c241028d4078ce21ed0734d3ae692e79036317effd876c26fdee74f1e5a97e
+    
+    if [ ! -f $udev_rules ]; then
+        rm -f $script
+        su $user -c "curl -sLo- $url" >$script
+        checksum=$(sha256sum $script | awk '{print $1}')
+        if [ "$checksum" = "$script_checksum" ]; then
+            if [ -e $udev_rules ]; then
+        	echo -n "LedgerHQ udev rules: "
+            else
+        	echo -n "Adding LedgerHQ udev rules:"
+        	bash $script
+            fi
+        else
+            fail "$(basename $script) checksum mismatch"
+        fi
+    fi
+    
+    ls -l $udev_rules
+}
+
+
+install_ledger_wallet() {
+    appname=ledger-live-desktop
+    appdir=/home/$user/.local/bin
+    icon=/home/$user/.local/share/icons/${appname}.png
+    desktop=/home/$user/.local/share/applications/${appname}.desktop
+    launcher=${appdir}/launch-${appname}.sh
+    
+    if [ ! -f $desktop ]; then
+
+	mkdir -p $appdir
+	chown $user:$user $appdir
+	chmod 0700 $appdir
+
+	cat ->$launcher <<"EOF"
+#!/bin/bash
+
+set -ueo pipefail
+
+title='Ledger Wallet'
+
+mkdir -p ~/logs
+(nohup "$@" >~/logs/ledger-wallet.out 2>~/logs/ledger-wallet.err )& disown
+
+yes | yad --progress --pulsate --on-top --center --undecorated --text="\n\n\n\tStarting ${title}...\t\n\n\n" &
+SPLASH_PID=$!
+while kill -0 $SPLASH_PID 2>/dev/null; do
+    for WID in $(xdotool search --onlyvisible --class ''); do
+	if xdotool getwindowname $WID | grep -q "$title"; then
+	    kill $SPLASH_PID
+	    break
+	fi
+    done
+    sleep .5
+done
+EOF
+	chown $user:$user $launcher
+	chmod 0700 $launcher
+    
+        # scan the ledger site for the latest ledger wallet AppImage URL
+        url=$(su -l $user -c 'curl -sL https://download.live.ledger.com/' |\
+            tr '<' '\n' | tr '>' '\n' |\
+            awk '/^a href=https:\/\/download.live.ledger.com\/ledger-live-desktop-[0-9]+\.[0-9]+\.[0-9]+-linux-x86_64\.AppImage.*/ { print $0 }' |\
+            sed 's/^a href=//' |\
+            sort -V |\
+            tail -1
+        )
+        
+	echo "appimage_url=$url"
+
+        appfile=$(basename $url)
+        appimage=$appdir/$appfile
+
+        # download the latest ledger wallet appimage
+	su -l $user -c "curl -Lo- $url" >$tempdir/$appfile
+        
+        if [ -f $appimage ]; then
+            echo "Found $appimage"
+            if cmp $appimage $tempdir/$appfile; then
+        	echo "Found matching $appimage"
+            else
+        	echo "Overwriting mismatched $appimage"
+        	cp $tempdir/$appfile $appimage
+            fi
+        else
+            echo "Writing $appimage"
+            cp $tempdir/$appfile $appimage
+        fi
+        chmod +x $appimage
+        
+        rm -f $icon
+        rm -f $desktop
+        
+        (cd $tempdir; $appimage --appimage-extract)
+        
+        appicon=$(find $tempdir/squashfs-root -type f -name '*.png' | head -1)
+        mkdir -p $(dirname $icon)
+        cp $appicon $icon
+	chown -R $user:$user $(dirname $icon)
+        
+        appdesktop=$(find $tempdir/squashfs-root -type f -name '*.desktop' | head -1)
+        mkdir -p $(dirname $desktop)
+        awk <$appdesktop >$desktop -v "launcher=$launcher" -v "icon=$icon" -v "appimage=$appimage" '
+            /^X-AppImage/{ next }
+            /^Exec=/{ printf("Exec=%s %s\n", launcher, appimage); next }
+            /^Icon=/{ printf("Icon=%s\n", icon); next }
+            { print }
+        '
+	chown -R $user:$user $(dirname $desktop)
+        chmod 0700 $desktop
+
+    fi
+    ls -al $desktop
+    ls -al $icon
+}
+
+
+install_yubico_authenticator() {
+    su -l $user <<"EOF"
+cd ~/.local/bin
+url=https://www.yubico.com/products/yubico-authenticator
+script='/href=".*".*>Download for Linux/{print $2}'
+curl -Lo- $(curl -Ls $url | awk -F'"' "$script") | tar zxv
+$(find ~/.local/bin -type f -name desktop_integration.sh | grep yubico-authenticator | head -1) --install
+EOF
+}
+
+munge_favorites() {
+    local arg
+    {
+	su -l $user -c "$session_args dconf read /org/cinnamon/favorite-apps" | \
+	    tr ',' '\n' |\
+	    awk -F"'" '{print $2}'
+	for arg in $menu_favorites; do
+	    echo "${arg}.desktop"
+	done
+    } | sort | uniq | grep -v 'pidgin' 
+}
+
+set_menu_favorites() {
+    local applist=
+    local sep='['
+    local app=
+    su -l $user -c "$session_args dconf dump /org/cinnamon/" >/root/org.cinnamon.dconf
+    for app in $(munge_favorites); do
+	applist="${applist}${sep}'$app'"
+	sep=', '
+    done
+    applist="${applist}]"
+    echo "favorite-apps=$applist"
+    su -l $user -c "$session_args dconf write /org/cinnamon/favorite-apps \"$applist\""
+}
+
+pin_applications() {
+    for pin in $pinned_applications; do
+	echo "pinning: $pin"
+	/root/bin/pin-application ${pin}.desktop
+    done
+}
+
+set_grub_timeout() {
+    cp /etc/default/grub /root
+    sed -i.bak -e 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=1/' /root/grub
+    mv /root/grub /etc/default
+    update-grub
+}
+
+install_packages
+set_grub_timeout
+/root/bin/reset-lightdm auto
+set_xargs
+write_autostart_script
+set_screensaver_timeout
+install_firefox
+install_ledger_udev_rules
+install_ledger_wallet
+install_yubico_authenticator
+set_menu_favorites
+pin_applications
+
+trap - DEBUG
+current_command=

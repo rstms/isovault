@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -ue
+
+case ${1:-disable} in 
+    enable) action=unmask;;
+    disable) action=mask;;
+    *) echo >&2 "usage: $(basename $0) enable|disable"; exit 1;;
+esac
+systemctl $action sleep.target suspend.target hibernate.target hybrid-sleep.target

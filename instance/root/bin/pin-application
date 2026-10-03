@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+
+import json
+import sys
+import pwd
+from pathlib import Path
+
+desktop=''
+if len(sys.argv) > 1:
+    desktop=sys.argv[1]
+
+def fail(msg):
+    sys.stderr.write(msg+"\n")
+    sys.exit(1)
+
+user_info = pwd.getpwuid(1000)
+username = user_info.pw_name
+
+config_dir = Path("/home") / username / ".config/cinnamon/spices/grouped-window-list@cinnamon.org"
+config_files = list(config_dir.glob('*.json'))
+if len(config_files) != 1:
+    fail(f"unexpected config files: {config_files}")
+filename=config_files[0]
+
+with open(filename, "r") as ifp:
+    config=json.load(ifp)
+
+pinned=config["pinned-apps"]["value"]
+if not desktop:
+    for pin in pinned:
+        print(pin)
+    sys.exit(0)
+
+if desktop:
+    if desktop not in set(pinned):
+        print(f"adding pinned {desktop} to {filename}")
+        pinned.append(desktop)
+
+config["pinned-apps"]["value"] = pinned
+
+with open(filename, "w") as ofp:
+    ofp.write(json.dumps(config, indent=2) + "\n")

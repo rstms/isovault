@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -ue
+
+echo "$(basename $0)" "$@"
+
+user=${1:-$(awk -F: '/^[^:]*:x:1000:1000:.*/{print $1}' /etc/passwd)}
+rm -rf /home/$user/bin
+cp -r /root/bin /home/$user
+chown -R $user:$user /home/$user/bin
