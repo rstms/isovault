@@ -20,19 +20,19 @@ fail() {
     exit 1
 }
 
-modify_service() {
-    local action=$1
-    local service=$2
-    if [ -e /etc/devuan_version ]; then
-	case $action in 
-	    start|stop|restart) service $service $action;;
-	    enable|disable) update-rc.d $service $action;;
-	    *) no_reset_session=1; fail "unexpected service action: $action";;
-	esac
-    else
-	systemctl $action $service
-    fi
-}
+#modify_service() {
+#    local action=$1
+#    local service=$2
+#    if [ -e /etc/devuan_version ]; then
+#	case $action in 
+#	    start|stop|restart) service $service $action;;
+#	    enable|disable) update-rc.d $service $action;;
+#	    *) no_reset_session=1; fail "unexpected service action: $action";;
+#	esac
+#    else
+#	systemctl $action $service
+#    fi
+#}
 
 cleanup() {
     if [ -n "$current_command" ]; then
@@ -70,7 +70,7 @@ install_packages() {
 	x11-xserver-utils \
 	xdotool \
 	yad
-    modify_service enable pcscd
+    /root/bin/modify-service enable pcscd
 }
 
 set_xargs() {
@@ -78,7 +78,6 @@ set_xargs() {
     local address=$(tr '\0' '\n' </proc/${pid}/environ | grep '^DBUS_SESSION_BUS_ADDRESS=')
     export session_args="DISPLAY=:0 $address"
 }
-
 
 write_autostart_script() {
     local resolution=800x600
@@ -335,6 +334,7 @@ set_grub_timeout() {
 }
 
 install_packages
+/root/bin/set-colord-rules
 set_grub_timeout
 /root/bin/reset-lightdm auto
 set_xargs

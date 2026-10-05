@@ -37,7 +37,7 @@ modify_service() {
 
 tail_lightdm_log() {
     if [ -f /etc/devuan_version ]; then
-	tail -F /var/log/syslog $lightdm_log
+	tail 2>/dev/null  -F /var/log/syslog $lightdm_log
     else
 	journalctl -f
     fi
@@ -111,12 +111,14 @@ set_autologin() {
     cp $config /root
     if [ -n "$username" ]; then
 	echo "Setting lightdm autologin-user: $username"
-	local script="s/^[#]*autologin-user[[:space:]]*=.*/autologin-user=${username}/"
+	local user_script="s/^[#[:space:]]*autologin-user[[:space:]]*=.*/autologin-user=${username}/"
+	local timeout_script="s/^[#[:space:]]*autologin-user-timeout[[:space:]]*=.*/autologin-user-timeout=0/"
     else
 	echo "Clearing lightdm autologin-user" 
-	local script="s/^[#]*autologin-user[[:space:]]*=.*/#autologin-user=/"
+	local user_script="s/^[#[:space:]]*autologin-user[[:space:]]*=.*/#autologin-user=/"
+	local timeout_script="s/^[#[:space:]]*autologin-user-timeout[[:space:]]*=.*/#autologin-user-timeout=0/"
     fi
-    sed -i.bak -e "${script}" /root/$(basename $config)
+    sed -i.bak -e "${user_script}" -e "${timeout_script}" /root/$(basename $config)
     mv /root/$(basename $config) $config
 }
 

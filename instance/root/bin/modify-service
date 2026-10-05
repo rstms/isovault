@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -ue
+
+if [ $# -lt 2 ]; then
+    echo >&2 usage: $(basename $0) 'start|stop|restart|enable|disable SERVICE'
+    exit 1
+fi
+
+action=$1
+service=$2
+
+if [ -e /etc/devuan_version ]; then
+    case $action in 
+	start|stop|restart) service $service $action; exit 0;;
+	enable|disable) update-rc.d $service $action; exit 0;;
+    esac
+else
+    case $action in 
+	start|stop|restart|enable|disable) systemctl $action $service; exit 0;;
+    esac
+fi
+echo >&2 $(basename $0): unexpected service action: $action
+exit 1

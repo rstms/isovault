@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -ue 
+
+{ tail 2>/dev/null -F /var/log/lightdm/lightdm.log | while read line; do logger -t lightdm <<<$line; done; }&
+lightdm_pid=$!
+
+{ tail 2>/dev/null -F /var/log/Xorg.0.log | while read line; do logger -t xorg <<<$line; done; }&
+xorg_pid=$!
+
+{ tail 2>/dev/null -F /var/log/auth.log | while read line; do logger -t authlog <<<$line; done; }&
+authlog_pid=$!
+
+{ tail 2>/dev/null -F /home/mkrueger/.xsession-errors | while read line; do logger -t xsession-errors <<<$line; done; }&
+errors_pid=$!
+
+handler() {
+    kill $lightdm_pid
+    kill $xorg_pid
+    kill $authlog_pid
+    kill $errors_pid
+    wait
+    exit 0
+}
+
+trap handler INT
+sleep inf

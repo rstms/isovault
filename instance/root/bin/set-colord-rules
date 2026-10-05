@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+filename=/etc/polkit-1/rules.d/45-allow-colord.rules
+cat >$filename <<EOF
+polkit.addRule(function(action, subject) {
+    if (action.id.indexOf("org.freedesktop.color-manager.") == 0 &&
+	subject.isInGroup("sudo")) {
+	return polkit.Result.YES;
+    }
+});
+EOF
+chmod 0644 $filename
+/root/bin/modify-service restart polkit
