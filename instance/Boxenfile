@@ -25,4 +25,4 @@ RUN mkdir -p /home/${system_user}/.local/bin
 RUN chown -R ${system_user}:${system_user} /home/${system_user}
 RUN find /home/${system_user} -type d -exec chmod 0700 \{\} \;
 RUN echo "1920x1080" >/root/.resolution
-#RUN /root/bin/bootstrap && echo -e "\nbootstrap complete" || echo -e "\nbootstrap failed"
+RUN /root/bin/bootstrap && echo -e "\nbootstrap complete" || echo -e "\nbootstrap failed"
