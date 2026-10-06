@@ -9,4 +9,4 @@ polkit.addRule(function(action, subject) {
 });
 EOF
 chmod 0644 $filename
-/root/bin/modify-service restart polkit
+#/root/bin/modify-service restart polkit

@@ -30,7 +30,13 @@ cleanup() {
 }
 trap cleanup EXIT
 
-journalctl -f -o short-iso 1>&5 2>&5 &
+if [ -e /etc/devuan_version ]; then
+    tail='tail -F /var/log/syslog'
+else
+    tail='journalctl -f -o short-iso'
+fi
+
+${tail} 1>&5 2>&5 &
 pid=$!
 
 /root/bin/configure 1>&3 2>&4

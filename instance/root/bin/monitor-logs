@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -ue 
+
+pids=
+
+{ tail 2>/dev/null -F /var/log/lightdm/lightdm.log | while read line; do logger -t lightdm <<<$line; done; }&
+pids="$pids $!"
+
+{ tail 2>/dev/null -F /var/log/Xorg.0.log | while read line; do logger -t xorg <<<$line; done; }&
+pids="$pids $!"
+
+{ tail 2>/dev/null -F /var/log/auth.log | while read line; do logger -t authlog <<<$line; done; }&
+pids="$pids $!"
+
+{ tail 2>/dev/null -F /home/mkrueger/.xsession-errors | while read line; do logger -t xsession-errors <<<$line; done; }&
+pids="$pids $!"
+
+{ tail 2>/dev/null -F /root/bootstrap.log | while read line; do logger -t bootstrap -errors <<<$line; done; }&
+pids="$pids $!"
+
+
+handler() {
+    for pid in $pids; do
+	kill $pid
+    done
+    wait
+    exit 0
+}
+
+trap handler INT
+tail -F /var/log/syslog | sed 's/[0-9-]\{10\}T\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]\)[0-9+:]\{10\} [a-z][a-z]* \(.*\)$/\1 \2/'
