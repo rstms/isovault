@@ -56,7 +56,10 @@ debug() {
 trap debug DEBUG
 
 install_packages() {
-    DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends -y cinnamon-core
+    DEBIAN_FRONTEND=noninteractive apt -y update
+    DEBIAN_FRONTEND=noninteractive apt install -y cinnamon-core
+    #DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends cinnamon-core
+    #DEBIAN_FRONTEND=noninteractive apt install lightdm
     DEBIAN_FRONTEND=noninteractive apt install -y \
 	colord \
 	dconf-cli \
