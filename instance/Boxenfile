@@ -1,7 +1,7 @@
 HOST VMWare:ram=4G:disk=32G:context=beaker:usb=3,hid,ccid,device=1050,device=2c97
 NETBOOT https://zippy.rstms.net:4443:os=devuan:version=excalibur
 KERNEL_PARAMS DEBIAN_FRONTEND=text
-#PROXY http://debcache.rstms.net:3142
+PROXY http://debcache.rstms.net:3142
 USERNAME ${system_user}
 SSH_PUBKEY @~/.ssh/id_ed25519.pub
 USER_PASSWD @~/.secrets/boxen/system_user_password
@@ -24,5 +24,7 @@ COPY dotfiles/ /home/${system_user}
 RUN mkdir -p /home/${system_user}/.local/bin
 RUN chown -R ${system_user}:${system_user} /home/${system_user}
 RUN find /home/${system_user} -type d -exec chmod 0700 \{\} \;
-RUN echo "1920x1080" >/root/.resolution
-#RUN /root/bin/bootstrap && echo -e "\nbootstrap complete" || echo -e "\nbootstrap failed"
+ARG resolution=1920x1080
+RUN echo ${resolution} >/root/.resolution
+RUN touch /root/.autologin
+RUN /root/bin/bootstrap && echo -e "\nbootstrapped" || echo -e "\nbootstrap failed"

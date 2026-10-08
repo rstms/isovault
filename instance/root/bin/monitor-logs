@@ -13,16 +13,18 @@ pids="$pids $!"
 { tail 2>/dev/null -F /var/log/auth.log | while read line; do logger -t authlog <<<$line; done; }&
 pids="$pids $!"
 
-{ tail 2>/dev/null -F /home/mkrueger/.xsession-errors | while read line; do logger -t xsession-errors <<<$line; done; }&
+{ tail 2>/dev/null -F /home/mkrueger/.xsession-errors | while read line; do logger -t xsession <<<$line; done; }&
 pids="$pids $!"
 
-{ tail 2>/dev/null -F /root/bootstrap.log | while read line; do logger -t bootstrap -errors <<<$line; done; }&
+{ tail 2>/dev/null -F /var/log/dmesg | while read line; do logger -t dmesg <<<$line; done; }&
 pids="$pids $!"
 
-
+{ tail 2>/dev/null -F /var/log/bootstrap.log | while read line; do logger -t bootstrap <<<$line; done; }&
+pids="$pids $!"
+ 
 handler() {
     for pid in $pids; do
-	kill $pid
+	kill 2>/dev/null $pid || true
     done
     wait
     exit 0

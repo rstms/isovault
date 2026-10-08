@@ -6,6 +6,7 @@ echo "$(basename $0)" "$@"
 
 menu_favorites="firefox-esr thunderbird org.xfce.mousepad ledger-live-desktop com.yubico.yubioath"
 pinned_applications="firefox-esr thunderbird org.xfce.mousepad"
+applets_to_disable="network printers sound"
 screensaver_timeout=3600
 
 export user=$(awk -F: '/^[^:]*:x:1000:1000:.*/{print $1}' /etc/passwd)
@@ -43,7 +44,11 @@ cleanup() {
 	rm -rf $tempdir
     fi
     if [ -z "$no_reset_session" ]; then
-	/root/bin/reset-lightdm
+	autologin=
+	if [ -e /root/.autologin ]; then
+	    autologin=auto
+	fi
+	/root/bin/reset-lightdm $autologin
     fi
 }
 trap cleanup EXIT
@@ -113,6 +118,20 @@ EOF
         chmod -R 0700 $autostart_dir
     fi
     ls -l $autostart_dir
+
+    xorg_config=/usr/share/X11/xorg.conf.d/10-resolution.conf
+    cat ->$xorg_config <<EOF
+Section "Screen"
+    Identifier "Screen0"
+    Device     "Device0"
+    Monitor    "Monitor0"
+    SubSection "Display"
+	Depth    24
+	Modes    "1920x1080"
+    EndSubSection
+EndSection
+EOF
+    chmod 0600 $xorg_config
 }
 
 set_screensaver_timeout() {
@@ -336,6 +355,12 @@ set_grub_timeout() {
     update-grub
 }
 
+disable_applets() {
+    for applet in $applets_to_disable; do
+	/root/bin/disable-applet $applet
+    done
+}
+
 install_packages
 /root/bin/set-colord-rules
 set_grub_timeout
@@ -349,6 +374,7 @@ install_ledger_wallet
 install_yubico_authenticator
 set_menu_favorites
 pin_applications
+disable_applets
 
 trap - DEBUG
 current_command=
