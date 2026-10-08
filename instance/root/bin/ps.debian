@@ -1,0 +1,276 @@
+    PID TTY      STAT   TIME COMMAND
+      2 ?        S      0:00 [kthreadd]
+      3 ?        S      0:00  \_ [pool_workqueue_release]
+      4 ?        I<     0:00  \_ [kworker/R-kvfree_rcu_reclaim]
+      5 ?        I<     0:00  \_ [kworker/R-rcu_gp]
+      6 ?        I<     0:00  \_ [kworker/R-sync_wq]
+      7 ?        I<     0:00  \_ [kworker/R-slub_flushwq]
+      8 ?        I<     0:00  \_ [kworker/R-netns]
+     10 ?        I<     0:00  \_ [kworker/0:0H-kblockd]
+     13 ?        I<     0:00  \_ [kworker/R-mm_percpu_wq]
+     14 ?        I      0:00  \_ [rcu_tasks_kthread]
+     15 ?        I      0:00  \_ [rcu_tasks_rude_kthread]
+     16 ?        I      0:00  \_ [rcu_tasks_trace_kthread]
+     17 ?        S      0:01  \_ [ksoftirqd/0]
+     18 ?        I      0:00  \_ [rcu_preempt]
+     19 ?        S      0:00  \_ [rcu_exp_par_gp_kthread_worker/0]
+     20 ?        S      0:00  \_ [rcu_exp_gp_kthread_worker]
+     21 ?        S      0:00  \_ [migration/0]
+     22 ?        S      0:00  \_ [idle_inject/0]
+     23 ?        S      0:00  \_ [cpuhp/0]
+     25 ?        S      0:00  \_ [kdevtmpfs]
+     26 ?        I<     0:00  \_ [kworker/R-inet_frag_wq]
+     27 ?        S      0:00  \_ [kauditd]
+     28 ?        S      0:00  \_ [khungtaskd]
+     31 ?        S      0:00  \_ [oom_reaper]
+     32 ?        I<     0:00  \_ [kworker/R-writeback]
+     33 ?        S      0:00  \_ [kcompactd0]
+     34 ?        SN     0:00  \_ [ksmd]
+     35 ?        SN     0:00  \_ [khugepaged]
+     36 ?        I<     0:00  \_ [kworker/R-kintegrityd]
+     37 ?        I<     0:00  \_ [kworker/R-kblockd]
+     38 ?        I<     0:00  \_ [kworker/R-blkcg_punt_bio]
+     39 ?        S      0:00  \_ [irq/9-acpi]
+     40 ?        I<     0:00  \_ [kworker/R-tpm_dev_wq]
+     41 ?        I<     0:00  \_ [kworker/R-edac-poller]
+     42 ?        I<     0:00  \_ [kworker/R-devfreq_wq]
+     43 ?        I<     0:00  \_ [kworker/R-quota_events_unbound]
+     45 ?        S      0:00  \_ [kswapd0]
+     52 ?        I<     0:00  \_ [kworker/R-kthrotld]
+     56 ?        S      0:00  \_ [irq/24-pciehp]
+     57 ?        S      0:00  \_ [irq/25-pciehp]
+     58 ?        S      0:00  \_ [irq/26-pciehp]
+     59 ?        S      0:00  \_ [irq/27-pciehp]
+     60 ?        S      0:00  \_ [irq/28-pciehp]
+     61 ?        S      0:00  \_ [irq/29-pciehp]
+     62 ?        S      0:00  \_ [irq/30-pciehp]
+     63 ?        S      0:00  \_ [irq/31-pciehp]
+     64 ?        S      0:00  \_ [irq/32-pciehp]
+     65 ?        S      0:00  \_ [irq/33-pciehp]
+     66 ?        S      0:00  \_ [irq/34-pciehp]
+     67 ?        S      0:00  \_ [irq/35-pciehp]
+     68 ?        S      0:00  \_ [irq/36-pciehp]
+     69 ?        S      0:00  \_ [irq/37-pciehp]
+     70 ?        S      0:00  \_ [irq/38-pciehp]
+     71 ?        S      0:00  \_ [irq/39-pciehp]
+     72 ?        S      0:00  \_ [irq/40-pciehp]
+     73 ?        S      0:00  \_ [irq/41-pciehp]
+     74 ?        S      0:00  \_ [irq/42-pciehp]
+     75 ?        S      0:00  \_ [irq/43-pciehp]
+     76 ?        S      0:00  \_ [irq/44-pciehp]
+     77 ?        S      0:00  \_ [irq/45-pciehp]
+     78 ?        S      0:00  \_ [irq/46-pciehp]
+     79 ?        S      0:00  \_ [irq/47-pciehp]
+     80 ?        S      0:00  \_ [irq/48-pciehp]
+     81 ?        S      0:00  \_ [irq/49-pciehp]
+     82 ?        S      0:00  \_ [irq/50-pciehp]
+     83 ?        S      0:00  \_ [irq/51-pciehp]
+     84 ?        S      0:00  \_ [irq/52-pciehp]
+     85 ?        S      0:00  \_ [irq/53-pciehp]
+     86 ?        S      0:00  \_ [irq/54-pciehp]
+     87 ?        S      0:00  \_ [irq/55-pciehp]
+     88 ?        I<     0:00  \_ [kworker/R-acpi_thermal_pm]
+     90 ?        I<     0:00  \_ [kworker/R-mld]
+     91 ?        I<     0:00  \_ [kworker/R-ipv6_addrconf]
+     96 ?        I<     0:00  \_ [kworker/R-kstrp]
+    212 ?        I<     0:00  \_ [kworker/R-nvme-wq]
+    213 ?        I<     0:00  \_ [kworker/R-nvme-reset-wq]
+    214 ?        I<     0:00  \_ [kworker/R-nvme-delete-wq]
+    215 ?        I<     0:00  \_ [kworker/R-nvme-auth-wq]
+    216 ?        I<     0:00  \_ [kworker/R-ata_sff]
+    217 ?        S      0:00  \_ [scsi_eh_0]
+    218 ?        I<     0:00  \_ [kworker/R-scsi_tmf_0]
+    219 ?        S      0:00  \_ [scsi_eh_1]
+    220 ?        I<     0:00  \_ [kworker/R-scsi_tmf_1]
+    223 ?        S      0:00  \_ [scsi_eh_2]
+    224 ?        I<     0:00  \_ [kworker/R-scsi_tmf_2]
+    225 ?        S      0:00  \_ [scsi_eh_3]
+    226 ?        I<     0:00  \_ [kworker/R-scsi_tmf_3]
+    227 ?        S      0:00  \_ [scsi_eh_4]
+    228 ?        I<     0:00  \_ [kworker/R-scsi_tmf_4]
+    229 ?        S      0:00  \_ [scsi_eh_5]
+    230 ?        I<     0:00  \_ [kworker/R-scsi_tmf_5]
+    231 ?        S      0:00  \_ [scsi_eh_6]
+    232 ?        I<     0:00  \_ [kworker/R-scsi_tmf_6]
+    233 ?        S      0:00  \_ [scsi_eh_7]
+    234 ?        I<     0:00  \_ [kworker/R-scsi_tmf_7]
+    235 ?        S      0:00  \_ [scsi_eh_8]
+    236 ?        I<     0:00  \_ [kworker/R-scsi_tmf_8]
+    237 ?        S      0:00  \_ [scsi_eh_9]
+    238 ?        I<     0:00  \_ [kworker/R-scsi_tmf_9]
+    239 ?        S      0:00  \_ [scsi_eh_10]
+    240 ?        I<     0:00  \_ [kworker/R-scsi_tmf_10]
+    241 ?        S      0:00  \_ [scsi_eh_11]
+    242 ?        I<     0:00  \_ [kworker/R-scsi_tmf_11]
+    243 ?        S      0:00  \_ [scsi_eh_12]
+    244 ?        I<     0:00  \_ [kworker/R-scsi_tmf_12]
+    245 ?        S      0:00  \_ [scsi_eh_13]
+    246 ?        I<     0:00  \_ [kworker/R-scsi_tmf_13]
+    247 ?        S      0:00  \_ [scsi_eh_14]
+    248 ?        I<     0:00  \_ [kworker/R-scsi_tmf_14]
+    249 ?        S      0:00  \_ [scsi_eh_15]
+    250 ?        I<     0:00  \_ [kworker/R-scsi_tmf_15]
+    251 ?        S      0:00  \_ [scsi_eh_16]
+    252 ?        I<     0:00  \_ [kworker/R-scsi_tmf_16]
+    253 ?        S      0:00  \_ [scsi_eh_17]
+    254 ?        I<     0:00  \_ [kworker/R-scsi_tmf_17]
+    255 ?        S      0:00  \_ [scsi_eh_18]
+    256 ?        I<     0:00  \_ [kworker/R-scsi_tmf_18]
+    257 ?        S      0:00  \_ [scsi_eh_19]
+    258 ?        I<     0:00  \_ [kworker/R-scsi_tmf_19]
+    259 ?        S      0:00  \_ [scsi_eh_20]
+    260 ?        I<     0:00  \_ [kworker/R-scsi_tmf_20]
+    261 ?        S      0:00  \_ [scsi_eh_21]
+    262 ?        I<     0:00  \_ [kworker/R-scsi_tmf_21]
+    263 ?        S      0:00  \_ [scsi_eh_22]
+    264 ?        I<     0:00  \_ [kworker/R-scsi_tmf_22]
+    265 ?        S      0:00  \_ [scsi_eh_23]
+    266 ?        I<     0:00  \_ [kworker/R-scsi_tmf_23]
+    267 ?        S      0:00  \_ [scsi_eh_24]
+    268 ?        I<     0:00  \_ [kworker/R-scsi_tmf_24]
+    269 ?        S      0:00  \_ [scsi_eh_25]
+    270 ?        I<     0:00  \_ [kworker/R-scsi_tmf_25]
+    271 ?        S      0:00  \_ [scsi_eh_26]
+    272 ?        I<     0:00  \_ [kworker/R-scsi_tmf_26]
+    273 ?        S      0:00  \_ [scsi_eh_27]
+    274 ?        I<     0:00  \_ [kworker/R-scsi_tmf_27]
+    275 ?        S      0:00  \_ [scsi_eh_28]
+    276 ?        I<     0:00  \_ [kworker/R-scsi_tmf_28]
+    277 ?        S      0:00  \_ [scsi_eh_29]
+    278 ?        I<     0:00  \_ [kworker/R-scsi_tmf_29]
+    279 ?        S      0:00  \_ [scsi_eh_30]
+    280 ?        I<     0:00  \_ [kworker/R-scsi_tmf_30]
+    281 ?        S      0:00  \_ [scsi_eh_31]
+    282 ?        I<     0:00  \_ [kworker/R-scsi_tmf_31]
+    302 ?        I      0:00  \_ [kworker/u4:25-ext4-rsv-conversion]
+    369 ?        S      0:01  \_ [jbd2/nvme0n1p1-8]
+    370 ?        I<     0:00  \_ [kworker/R-ext4-rsv-conversion]
+    397 ?        S      0:00  \_ [irq/61-vmw_vmci]
+    398 ?        S      0:00  \_ [irq/62-vmw_vmci]
+    399 ?        S      0:00  \_ [irq/63-vmw_vmci]
+    434 ?        S      0:00  \_ [psimon]
+    493 ?        I<     0:00  \_ [kworker/0:2H]
+    599 ?        S      0:00  \_ [irq/16-vmwgfx]
+    600 ?        I<     0:00  \_ [kworker/R-ttm]
+    601 ?        I<     0:00  \_ [kworker/R-cryptd]
+    833 ?        I<     0:00  \_ [kworker/R-cfg80211]
+  42747 ?        I      0:00  \_ [kworker/u4:0-events_unbound]
+  47462 ?        I      0:00  \_ [kworker/0:4-events]
+  54249 ?        I      0:00  \_ [kworker/u4:2-ipv6_addrconf]
+  54764 ?        I      0:00  \_ [kworker/0:0-events]
+  55201 ?        I<     0:00  \_ [kworker/u5:2-ttm]
+  55279 ?        I<     0:00  \_ [kworker/u5:8-ttm]
+  61779 ?        S      0:00  \_ [psimon]
+      1 ?        Ss     0:08 /sbin/init
+    412 ?        Ss     0:02 /usr/lib/systemd/systemd-journald
+    433 ?        Ss     0:00 /usr/lib/systemd/systemd-udevd
+    685 ?        Ss     0:00 /usr/sbin/cron -f
+    686 ?        Ss     0:02 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+    691 ?        Ssl    0:00 /usr/sbin/rsyslogd -n -iNONE
+    712 ?        Ss     0:00 /usr/lib/systemd/systemd-logind
+    718 ?        S      0:00 dhcpcd: eth0 [ip4] [ip6]
+    719 ?        S      0:00  \_ dhcpcd: [privileged proxy] eth0 [ip4] [ip6]
+   1043 ?        S      0:00  |   \_ dhcpcd: [DHCP6 proxy] fe80::590a:9888:ab93:16a5
+   1049 ?        S      0:00  |   \_ dhcpcd: [BPF ARP] eth0 192.168.66.116
+   1099 ?        S      0:00  |   \_ dhcpcd: [BOOTP proxy] 192.168.66.116
+    720 ?        S      0:00  \_ dhcpcd: [network proxy] eth0 [ip4] [ip6]
+    721 ?        S      0:00  \_ dhcpcd: [control proxy] eth0 [ip4] [ip6]
+    735 ?        Ss     0:00 /usr/bin/VGAuthService
+    737 ?        Ssl    0:01 /usr/bin/vmtoolsd
+    829 tty1     Ss+    0:00 /sbin/agetty -o -- \u --noreset --noclear - linux
+    832 ?        Ss     0:00 sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups
+   1598 ?        Ss     0:00  \_ sshd-session: mkrueger [priv]
+   1617 ?        S      0:03      \_ sshd-session: mkrueger@pts/0,pts/1
+   1618 pts/0    Ss     0:00          \_ -bash
+   1623 pts/0    S      0:00          |   \_ doas -s
+   1627 pts/0    S      0:00          |       \_ /bin/bash
+  61429 pts/0    S+     0:00          |           \_ bash ./monitor-logs
+  61430 pts/0    S+     0:00          |               \_ bash ./monitor-logs
+  61431 pts/0    S+     0:00          |               |   \_ tail -F /var/log/lightdm/lightdm.log
+  61432 pts/0    S+     0:00          |               |   \_ bash ./monitor-logs
+  61433 pts/0    S+     0:00          |               \_ bash ./monitor-logs
+  61438 pts/0    S+     0:00          |               |   \_ tail -F /var/log/Xorg.0.log
+  61439 pts/0    S+     0:00          |               |   \_ bash ./monitor-logs
+  61434 pts/0    S+     0:00          |               \_ bash ./monitor-logs
+  61440 pts/0    S+     0:00          |               |   \_ tail -F /var/log/auth.log
+  61441 pts/0    S+     0:00          |               |   \_ bash ./monitor-logs
+  61435 pts/0    S+     0:00          |               \_ bash ./monitor-logs
+  61442 pts/0    S+     0:00          |               |   \_ tail -F /home/mkrueger/.xsession-errors
+  61443 pts/0    S+     0:00          |               |   \_ bash ./monitor-logs
+  61436 pts/0    S+     0:00          |               \_ bash ./monitor-logs
+  61444 pts/0    S+     0:00          |               |   \_ tail -F /var/log/dmesg
+  61445 pts/0    S+     0:00          |               |   \_ bash ./monitor-logs
+  61437 pts/0    S+     0:00          |               \_ bash ./monitor-logs
+  61446 pts/0    S+     0:00          |               |   \_ tail -F /var/log/bootstrap.log
+  61447 pts/0    S+     0:00          |               |   \_ bash ./monitor-logs
+  61452 pts/0    S+     0:00          |               \_ tail -F /var/log/syslog
+  61453 pts/0    S+     0:00          |               \_ sed s/[0-9-]\{10\}T\([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9]\)[0-9+:]\{10\} [a-z][a-z]* \(.*\)$/\1 \2/
+   1660 pts/1    Ss     0:00          \_ -bash
+   1664 pts/1    S      0:00              \_ doas -s
+   1668 pts/1    S      0:00                  \_ /bin/bash
+  72006 pts/1    R+     0:00                      \_ ps faxww
+   1603 ?        Ss     0:00 /usr/lib/systemd/systemd --user
+   1606 ?        S      0:00  \_ (sd-pam)
+  21789 ?        Ss     0:01  \_ /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+  41246 ?        Ssl    0:00  \_ /usr/libexec/dconf-service
+  42057 ?        Ssl    0:00  \_ /usr/libexec/gvfsd
+  42541 ?        Sl     0:00  |   \_ /usr/libexec/gvfsd-trash --spawner :1.17 /org/gtk/gvfs/exec_spaw/0
+  42065 ?        Sl     0:00  \_ /usr/libexec/gvfsd-fuse /run/user/1000/gvfs -f
+  42125 ?        Ssl    0:00  \_ /usr/libexec/gvfs-udisks2-volume-monitor
+  42180 ?        Ssl    0:00  \_ /usr/libexec/gvfs-gphoto2-volume-monitor
+  42212 ?        Ssl    0:00  \_ /usr/libexec/gvfs-afc-volume-monitor
+  42228 ?        Ssl    0:00  \_ /usr/libexec/gvfs-mtp-volume-monitor
+  42234 ?        Ssl    0:00  \_ /usr/libexec/gvfs-goa-volume-monitor
+  42239 ?        Sl     0:00  \_ /usr/libexec/goa-daemon
+  42247 ?        Sl     0:00  \_ /usr/libexec/goa-identity-service
+  42570 ?        Ssl    0:00  \_ /usr/libexec/evolution-source-registry
+  42595 ?        Ssl    0:00  \_ /usr/libexec/gvfsd-metadata
+  42684 ?        Ssl    0:00  \_ /usr/libexec/evolution-calendar-factory
+  42718 ?        Ssl    0:00  \_ /usr/libexec/evolution-addressbook-factory
+  42724 ?        Ssl    0:00  \_ /usr/libexec/bluetooth/obexd
+  42864 ?        Ssl    0:00  \_ /usr/libexec/xdg-desktop-portal
+  42871 ?        Ssl    0:00  \_ /usr/libexec/xdg-permission-store
+  42879 ?        Ssl    0:00  \_ /usr/libexec/xdg-document-portal
+  42885 ?        Ss     0:00  |   \_ fusermount3 -o rw,nosuid,nodev,fsname=portal,auto_unmount,subtype=portal -- /run/user/1000/doc
+  42890 ?        Ssl    0:00  \_ /usr/libexec/xdg-desktop-portal-xapp
+  22558 ?        Ssl    0:00 /usr/sbin/NetworkManager --no-daemon
+  31812 ?        Ss     0:00 /usr/sbin/wpa_supplicant -u -s -O DIR=/run/wpa_supplicant GROUP=netdev
+  31980 ?        Ss     0:00 avahi-daemon: running [isovault.local]
+  31981 ?        S      0:00  \_ avahi-daemon: chroot helper
+  32154 ?        Ssl    0:00 /usr/libexec/udisks2/udisksd
+  38278 ?        Ssl    0:00 /usr/lib/polkit-1/polkitd --no-debug --log-level=notice
+  38292 ?        Ssl    0:00 /usr/sbin/ModemManager
+  40134 ?        Ssl    0:00 /usr/libexec/accounts-daemon
+  42122 ?        Ssl    0:00 /usr/libexec/upowerd
+  42911 ?        SNsl   0:00 /usr/libexec/rtkit-daemon
+  69565 ?        Ssl    0:00 /usr/sbin/lightdm
+  69588 tty7     Ssl+   0:00  \_ /usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch
+  70700 ?        Sl     0:00  \_ lightdm --session-child 13 16
+  70725 ?        Ssl    0:00      \_ /usr/lib/x86_64-linux-gnu/cinnamon-session/cinnamon-session-binary
+  70961 ?        Ss     0:00          \_ /usr/bin/ssh-agent x-session-manager
+  71030 ?        Sl     0:00          \_ /usr/bin/csd-power
+  71031 ?        Sl     0:00          \_ /usr/bin/csd-a11y-settings
+  71036 ?        Sl     0:00          \_ /usr/bin/csd-housekeeping
+  71040 ?        Sl     0:00          \_ /usr/lib/x86_64-linux-gnu/cinnamon-settings-daemon/csd-print-notifications
+  71042 ?        Sl     0:00          \_ /usr/bin/csd-color
+  71044 ?        Sl     0:00          \_ /usr/libexec/at-spi-bus-launcher --launch-immediately
+  71100 ?        S      0:00          |   \_ /usr/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 11 --address=unix:path=/run/user/1000/at-spi/bus_0
+  71059 ?        Sl     0:00          \_ /usr/bin/csd-automount
+  71064 ?        Sl     0:00          \_ /usr/bin/csd-settings-remap
+  71071 ?        Sl     0:00          \_ /usr/bin/csd-media-keys
+  71095 ?        Sl     0:00          \_ /usr/bin/csd-clipboard
+  71108 ?        Sl     0:00          \_ /usr/bin/csd-screensaver-proxy
+  71140 ?        Sl     0:00          \_ /usr/bin/csd-background
+  71149 ?        Sl     0:00          \_ /usr/bin/csd-wacom
+  71175 ?        Sl     0:00          \_ /usr/bin/csd-keyboard
+  71218 ?        Sl     0:00          \_ /usr/bin/csd-xsettings
+  71599 ?        Sl     0:00          \_ cinnamon-launcher
+  71628 ?        Sl     0:00          |   \_ cinnamon --replace
+  71663 ?        Sl     0:00          \_ /usr/lib/x86_64-linux-gnu/xapps/xapp-sn-watcher
+  71705 ?        Sl     0:00          \_ /usr/bin/nemo-desktop
+  71714 ?        Sl     0:00          \_ cinnamon-killer-daemon
+  71718 ?        Sl     0:00          \_ /usr/bin/python3 /usr/bin/blueman-applet
+  71734 ?        Sl     0:00          \_ /usr/libexec/evolution-data-server/evolution-alarm-notify
+  71007 ?        Sl     0:00 /usr/bin/gnome-keyring-daemon --start --components=ssh
+  71284 ?        Sl     0:00 /usr/lib/x86_64-linux-gnu/cinnamon-settings-daemon/csd-printer
+  71536 ?        Sl     0:00 /usr/libexec/at-spi2-registryd --use-gnome-session

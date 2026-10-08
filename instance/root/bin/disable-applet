@@ -1,0 +1,72 @@
+#!/bin/bash
+
+set -ue
+
+#echo "$(basename $0)" "$@"
+
+if [ $# -eq 1 ]; then
+    disable_name=$1
+else
+    echo >&2 usage: $(basename $0) APPLET
+    exit 1
+fi
+
+export user=$(awk -F: '/^[^:]*:x:1000:1000:.*/{print $1}' /etc/passwd)
+export session_start_timeout=300
+export PATH=/root/bin:$PATH
+export tempdir=$(mktemp -d)
+
+fail() {
+    echo >&2 $0: "$@"
+    exit 1
+}
+
+#modify_service() {
+#    local action=$1
+#    local service=$2
+#    if [ -e /etc/devuan_version ]; then
+#	case $action in 
+#	    start|stop|restart) service $service $action;;
+#	    enable|disable) update-rc.d $service $action;;
+#	    *) no_reset_session=1; fail "unexpected service action: $action";;
+#	esac
+#    else
+#	systemctl $action $service
+#    fi
+#}
+
+cleanup() {
+    if [ -d "$tempdir" ]; then
+	#echo "removing tempdir $tempdir"
+	rm -rf $tempdir
+    fi
+}
+trap cleanup EXIT
+
+pid=$(pgrep -u $user '^cinnamon$') 
+address=$(tr '\0' '\n' </proc/${pid}/environ | grep '^DBUS_SESSION_BUS_ADDRESS=')
+export session_args="DISPLAY=:0 $address"
+
+current_applets=$(su -l $user -c "${session_args} dconf read /org/cinnamon/enabled-applets")
+
+applet_configs=$(tr <<<$current_applets ',' '\n' | sed 's/^[\[[:space:]]*//g;s/\]$//g')
+
+applets='['
+sep=
+for config in $applet_configs; do
+    name=$(awk <<<$config -F: '{print $4}' | sed 's/@.*$//g')
+    if [[ $name =~ $disable_name ]]; then
+	echo disabling applet: $config
+    else
+	applets="${applets}${sep}${config}"
+	sep=', '
+    fi
+done
+applets="${applets}]"
+
+if [[ "$current_applets" = "$applets" ]]; then
+    echo >&2 no change
+else
+    echo >&2 'updating applets'
+    su -l $user -c "${session_args} dconf write /org/cinnamon/enabled-applets \"${applets}\""
+fi
